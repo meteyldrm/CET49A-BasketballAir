@@ -41,7 +41,9 @@ public class Draggable : MonoBehaviour {
         if (dragging) {
             Vector3 screenVector = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 4.92f));
             
-            transform.position = screenVector;
+            rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 4);
+            
+            //transform.position = screenVector;
         }
     }
 
