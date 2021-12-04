@@ -1,8 +1,10 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Draggable : MonoBehaviour {
     private Rigidbody rb;
     
+    public bool canDrag = true;
     private bool hasCollisionOverlap;
     private bool dragging;
 
@@ -22,6 +24,8 @@ public class Draggable : MonoBehaviour {
         currentPos = rb.position;
     }
 
+    #region Desktop
+
     private void OnMouseEnter() {
         hasCollisionOverlap = true;
     }
@@ -31,7 +35,7 @@ public class Draggable : MonoBehaviour {
     }
 
     private void OnMouseDown() {
-        if (hasCollisionOverlap) {
+        if (canDrag && hasCollisionOverlap) {
             dragging = true;
             doDrag(true);
         }
@@ -39,7 +43,7 @@ public class Draggable : MonoBehaviour {
 
     private void OnMouseDrag() {
         if (dragging) {
-            Vector3 screenVector = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 4.92f));
+            Vector3 screenVector = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, math.abs(cam.transform.position.z)));
             
             rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 4);
             
@@ -51,6 +55,14 @@ public class Draggable : MonoBehaviour {
         dragging = false;
         doDrag(false);
     }
+
+    #endregion
+    
+    #region Mobile
+    
+    
+    
+    #endregion
 
     private void doDrag(bool state) {
         if (state) {

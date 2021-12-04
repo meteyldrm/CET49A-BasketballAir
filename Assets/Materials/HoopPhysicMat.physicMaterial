@@ -9,6 +9,6 @@ PhysicMaterial:
   m_Name: HoopPhysicMat
   dynamicFriction: 1
   staticFriction: 1
-  bounciness: 0.42
+  bounciness: 0.09
   frictionCombine: 0
   bounceCombine: 0

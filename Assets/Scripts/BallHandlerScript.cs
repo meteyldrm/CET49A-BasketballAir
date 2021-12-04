@@ -19,7 +19,7 @@ public class BallHandlerScript : MonoBehaviour {
 
     private void Start() {
         pool = gameObject.GetComponent<ObjectPool>();
-        StartCoroutine(ballSpawnerCoroutine(2));
+        StartCoroutine(ballSpawnerCoroutine(spawnFrequency));
     }
 
     private void spawnBall() {
@@ -27,10 +27,16 @@ public class BallHandlerScript : MonoBehaviour {
         //Constrain rotation to z axis?
 
         var position = transform.position;
-        Vector3 positionVector = new Vector3(Random.Range(-1f, -0.3f), position.y + 0.5f, position.z);
+        Vector3 positionVector = new Vector3(Random.Range(-2f, -0.5f), position.y + 0.5f, position.z);
         GameObject ball = pool.GetFromPool();
+        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
         ball.transform.position = positionVector;
-        ball.GetComponent<Rigidbody>().AddForce((new Vector3(Random.Range(-0.01f, 0.01f), 0.6f, 0)), ForceMode.Impulse);
+        ball.transform.rotation = new Quaternion(0, 0, 1, 0);
+        ballRB.velocity = Vector3.zero;
+        var TempVec = new Vector3(Random.Range(-25f, 25f), Random.Range(-25f, 25f), Random.Range(-25f, 25f));
+        var rand = Random.Range(1, 3);
+        ballRB.angularVelocity = TempVec * rand;
+        ballRB.AddForce((new Vector3(Random.Range(-0.1f, 0.1f), 0.3f, 0)), ForceMode.Impulse);
     }
 
     IEnumerator ballSpawnerCoroutine(float time) {
