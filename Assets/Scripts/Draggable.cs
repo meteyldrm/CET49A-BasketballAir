@@ -18,6 +18,11 @@ public class Draggable : MonoBehaviour {
 
         cam = Camera.main;
     }
+
+    private void OnDisable() {
+        dragging = false;
+    }
+
     private void FixedUpdate() {
         previousPos = currentPos;
         currentPos = rb.position;
@@ -44,7 +49,7 @@ public class Draggable : MonoBehaviour {
             }
 
             if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary) {
-                if (dragging) {
+                if (canDrag && dragging) {
                     Vector3 screenVector = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, math.abs(cam.transform.position.z)));
             
                     rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 4);

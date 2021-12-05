@@ -49,4 +49,12 @@ public class BallScript: MonoBehaviour {
             }
         }
     }
+
+    private void OnTriggerExit(Collider other) {
+        if (other.GetComponent<MeshCollider>() != null) {
+            if (other.name == "HoopEnter") {
+                hasEnteredHoop = false;
+            }
+        }
+    }
 }
