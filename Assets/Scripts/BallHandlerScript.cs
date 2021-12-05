@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Resources;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -15,11 +14,16 @@ public class BallHandlerScript : MonoBehaviour {
     
     [SerializeField] private float spawnFrequency; //Upper boundary of the random ball spawn frequency
 
-    private ObjectPool pool;
+    private InstancePool pool;
 
     private void Start() {
-        pool = gameObject.GetComponent<ObjectPool>();
-        StartCoroutine(ballSpawnerCoroutine(spawnFrequency));
+        pool = gameObject.GetComponent<InstancePool>();
+
+        for (var i = 0; i < transform.childCount; i++) {
+            pool.AddToPool(transform.GetChild(i).gameObject);
+        }
+        
+        StartCoroutine(ballSpawnerCoroutine(0));
     }
 
     private void spawnBall() {
@@ -27,21 +31,28 @@ public class BallHandlerScript : MonoBehaviour {
         //Constrain rotation to z axis?
 
         var position = transform.position;
-        Vector3 positionVector = new Vector3(Random.Range(-2f, -0.5f), position.y + 0.5f, position.z);
-        GameObject ball = pool.GetFromPool();
-        Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+        var positionVector = new Vector3(Random.Range(-2f, -0.5f), position.y + 0.5f, position.z);
+        var ball = pool.GetFromPool();
+        var ballRB = ball.GetComponent<Rigidbody>();
         ball.transform.position = positionVector;
         ball.transform.rotation = new Quaternion(0, 0, 1, 0);
         ballRB.velocity = Vector3.zero;
         var TempVec = new Vector3(Random.Range(-25f, 25f), Random.Range(-25f, 25f), Random.Range(-25f, 25f));
         var rand = Random.Range(1, 3);
         ballRB.angularVelocity = TempVec * rand;
-        ballRB.AddForce((new Vector3(Random.Range(-0.1f, 0.1f), 0.3f, 0)), ForceMode.Impulse);
+        ballRB.AddForce((new Vector3(Random.Range(-0.1f, 0.1f), 0.4f, 0)), ForceMode.Impulse);
     }
 
-    IEnumerator ballSpawnerCoroutine(float time) {
-        yield return new WaitForSeconds(time);
-        spawnBall();
-        StartCoroutine(ballSpawnerCoroutine(Random.Range(spawnFrequency/3, spawnFrequency)));
+    public void AddToPool(GameObject basketball) {
+        pool.AddToPool(basketball);
+    }
+
+    private IEnumerator ballSpawnerCoroutine(float time) {
+        while (true) {
+            yield return new WaitForSeconds(time);
+            spawnBall();
+            time = Random.Range(spawnFrequency / 3, spawnFrequency);
+        }
+        // ReSharper disable once IteratorNeverReturns
     }
 }

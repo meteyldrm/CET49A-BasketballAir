@@ -16,9 +16,9 @@ namespace Resources {
 
         private void GrowPool()
         {
-            for (int i = 0; i < poolGrowSize; i++)
+            for (var i = 0; i < poolGrowSize; i++)
             {
-                GameObject instanceToAdd = Instantiate(prefab, transform, true);
+                var instanceToAdd = Instantiate(prefab, transform, true);
                 AddToPool(instanceToAdd);
             }
         }
@@ -35,7 +35,7 @@ namespace Resources {
                 GrowPool();
 
 
-            GameObject inst = _availableObjects.Pop();
+            var inst = _availableObjects.Pop();
             inst.SetActive(true);
             return inst;
         }

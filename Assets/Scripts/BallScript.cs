@@ -25,7 +25,7 @@ public class BallScript: MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("BallDestroy")) {
-            other.GetComponent<ObjectPool>().AddToPool(this.gameObject);
+            transform.parent.GetComponent<BallHandlerScript>().AddToPool(this.gameObject);
             return;
         }
 
@@ -36,6 +36,12 @@ public class BallScript: MonoBehaviour {
             if (other.name == "HoopExit") {
                 if (hasEnteredHoop) {
                     //Handle score and basket logic through controller
+                    
+                    /*
+                     *Time from mouseUp to basket should be considered 
+                     * 
+                     */
+                    
                     hoopController.onBasket((int)(ballScore * ballMultiplier));
                     this.GetComponent<Draggable>().canDrag = false;
                 }
