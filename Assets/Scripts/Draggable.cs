@@ -5,75 +5,97 @@ using UnityEngine;
 public class Draggable : MonoBehaviour {
     private Rigidbody rb;
     
-    public bool canDrag = true;
+    [NonSerialized] public bool canDrag;
     private bool dragging;
     private Vector3 dragOffset = Vector3.zero;
-
-    private Camera cam;
 
     private Vector3 currentPos = Vector3.zero;
     private Vector3 previousPos = Vector3.zero;
 
+    private float lerpTime;
+    
+    private Vector3 screenVector;
+
+    private float touchRadius;
+
+    public float timeMultiplier = 0f;
+    
     private void Start() {
         rb = gameObject.GetComponent<Rigidbody>();
-
-        cam = Camera.main;
     }
 
     private void OnDisable() {
-        dragging = false;
-        dragOffset = Vector3.zero;
+        lerpTime = 0;
+    }
+
+    private void OnEnable() {
+        if (rb == null) {
+            rb = gameObject.GetComponent<Rigidbody>();
+        }
     }
 
     private void FixedUpdate() {
         previousPos = currentPos;
         currentPos = rb.position;
+        dragOffset = Vector3.Lerp(dragOffset, Vector3.zero, lerpTime);
+        lerpTime += Time.fixedDeltaTime / 25f;
     }
 
     private void Update() {
-        if (Input.touchCount > 0) {
-            var touch = Input.GetTouch(0);
+        if (canDrag && dragging) {
+            rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 5);
+            timeMultiplier = 1;
+        }
 
-            if (touch.phase == TouchPhase.Began) {
-                var ray = cam.ScreenPointToRay(touch.position);
-                RaycastHit hit;
-                Physics.Raycast(ray, out hit, 100);
-
-                //TODO Add a child to every basketball and increase its collider size to match finger size.
-                
-                try {
-                    if (canDrag && hit.collider.gameObject == this.gameObject) {
-                        dragOffset = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, -cam.transform.position.z)) - transform.position;
-                        dragOffset.z = 0;
-                        dragging = true;
-                        doDrag(true);
-                    }
-                } catch (NullReferenceException) {
-                    return;
-                }
-            }
-
-            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary) {
-                if (canDrag && dragging) {
-                    Vector3 screenVector = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, math.abs(cam.transform.position.z))) - dragOffset;
-            
-                    rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 4);
-                }
-            }
-
-            if (touch.phase == TouchPhase.Ended) {
-                dragging = false;
-                doDrag(false);
-                dragOffset = Vector3.zero;
+        if (!dragging) {
+            if(timeMultiplier < 1.5f){
+                timeMultiplier += 1.2f * Time.deltaTime;
             }
         }
     }
 
+    public bool interceptTouch(Vector3 spaceVector) {
+        if (canDrag) {
+            return math.abs(Vector3.Distance(transform.position, spaceVector)) < touchRadius;
+        }
+
+        return false;
+    }
+
+    public void setRadius(float radius) {
+        touchRadius = radius;
+    }
+
+    public void SetInteractionState(TouchPhase iState, Vector3 spaceVector) {
+        switch (iState) {
+            case TouchPhase.Began: {
+                var position = transform.position;
+                dragOffset = spaceVector - position;
+                screenVector = position - dragOffset;
+                doDrag(true);
+                break;
+            }
+            case TouchPhase.Ended:
+                dragOffset = spaceVector;
+                screenVector = spaceVector;
+                doDrag(false);
+                break;
+        }
+    }
+
+    public void SetTransformGoal(Vector3 goal) {
+        screenVector = goal - dragOffset;
+    }
+
     private void doDrag(bool state) {
         if (state) {
-            rb.velocity = Vector3.zero;
+            dragging = true;
         } else {
-            rb.velocity = (currentPos - previousPos) / Time.fixedDeltaTime;
+            try {
+                rb.velocity = (currentPos - previousPos) / Time.fixedDeltaTime;
+                dragging = false;
+            } catch (NullReferenceException) {
+            }
         }
     }
 }

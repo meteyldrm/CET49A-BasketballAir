@@ -1,26 +1,38 @@
 ﻿using System;
-using Resources;
 using UnityEngine;
 
 public class BallScript: MonoBehaviour {
 
     private int ballScore = 5;
     private float ballMultiplier = 1f;
-    private bool hasEnteredHoop = false;
+    private bool hasEnteredHoop;
+
+    private int iceState = 0;
+
+    [SerializeField] private Material[] Materials;
 
     private GameObject hoop;
     private HoopController hoopController;
 
+    private Draggable _draggable;
+    private MeshRenderer _renderer;
+    private Rigidbody _rigidbody;
+
     private void Start() {
         hasEnteredHoop = false;
-        this.GetComponent<Draggable>().canDrag = true;
+        _renderer = GetComponent<MeshRenderer>();
+        _rigidbody = GetComponent<Rigidbody>();
+        _draggable = GetComponent<Draggable>();
+        _draggable.canDrag = true;
         hoop = GameObject.Find("Hoop");
         if(hoopController == null) hoopController = hoop.GetComponent<HoopController>();
     }
 
     private void OnEnable() {
         hasEnteredHoop = false;
-        this.GetComponent<Draggable>().canDrag = true;
+        if(_draggable != null) _draggable.canDrag = true;
+        if(_renderer == null) _renderer = GetComponent<MeshRenderer>();
+        if(_rigidbody == null) _rigidbody = GetComponent<Rigidbody>();
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -35,19 +47,42 @@ public class BallScript: MonoBehaviour {
             }
             if (other.name == "HoopExit") {
                 if (hasEnteredHoop) {
-                    //Handle score and basket logic through controller
-                    
-                    /*
-                     *Time from mouseUp to basket should be considered 
-                     * 
-                     */
-                    
-                    hoopController.onBasket((int)(ballScore * ballMultiplier));
-                    this.GetComponent<Draggable>().canDrag = false;
+                    hoopController.onBasket((int)(ballScore * ballMultiplier * _draggable.timeMultiplier * ((1 + _rigidbody.velocity.magnitude) * 0.3f)));
+                    _draggable.canDrag = false;
                 }
                 hasEnteredHoop = false;
             }
         }
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (iceState > 1) {
+            setIceState(iceState-1);
+            ballMultiplier += 0.4f;
+            ballScore = 0;
+        } else {
+            setIceState(0);
+            ballScore = 5;
+        }
+    }
+
+    public void setIceState(int state) {
+        _renderer.material = Materials[state];
+
+        if (state > 0) {
+            for (var i = 0; i < transform.childCount; i++) {
+                transform.GetChild(i).gameObject.SetActive(false);
+            }
+            transform.GetChild(state-1).gameObject.SetActive(true);
+        }
+
+        if (state == 0) {
+            for (var i = 0; i < transform.childCount; i++) {
+                transform.GetChild(i).gameObject.SetActive(false);
+            }
+        }
+        
+        iceState = state;
     }
 
     private void OnTriggerExit(Collider other) {

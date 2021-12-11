@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Resources {
-    public class InstancePool : MonoBehaviour
+    public class InstancePool : MonoBehaviour, IEnumerable
     {
         private readonly Stack<GameObject> _availableObjects = new Stack<GameObject>();
-        
         
         public void AddToPool(GameObject instance)
         {
@@ -14,9 +14,17 @@ namespace Resources {
         }
 
         public GameObject GetFromPool() {
-            var inst = _availableObjects.Pop();
-            inst.SetActive(true);
-            return inst;
+            foreach (var instance in _availableObjects) {
+                if (!instance.activeSelf) {
+                    instance.SetActive(true);
+                    return instance;
+                }
+            }
+            return null;
+        }
+
+        public IEnumerator GetEnumerator() {
+            return _availableObjects.GetEnumerator();
         }
     }
 }
