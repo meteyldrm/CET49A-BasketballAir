@@ -1,4 +1,5 @@
 ﻿using System;
+using Resources;
 using UnityEngine;
 
 public class BallScript: MonoBehaviour {
@@ -17,12 +18,15 @@ public class BallScript: MonoBehaviour {
     private Draggable _draggable;
     private MeshRenderer _renderer;
     private Rigidbody _rigidbody;
+    
+    private AudioController _audioController;
 
     private void Start() {
         hasEnteredHoop = false;
         _renderer = GetComponent<MeshRenderer>();
         _rigidbody = GetComponent<Rigidbody>();
         _draggable = GetComponent<Draggable>();
+        _audioController = gameObject.GetComponent<AudioController>();
         _draggable.canDrag = true;
         hoop = GameObject.Find("Hoop");
         if(hoopController == null) hoopController = hoop.GetComponent<HoopController>();
@@ -33,6 +37,9 @@ public class BallScript: MonoBehaviour {
         if(_draggable != null) _draggable.canDrag = true;
         if(_renderer == null) _renderer = GetComponent<MeshRenderer>();
         if(_rigidbody == null) _rigidbody = GetComponent<Rigidbody>();
+        if (_audioController == null) {
+            _audioController = gameObject.GetComponent<AudioController>();
+        }
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -49,6 +56,7 @@ public class BallScript: MonoBehaviour {
                 if (hasEnteredHoop) {
                     hoopController.onBasket((int)(ballScore * ballMultiplier * _draggable.timeMultiplier * ((1 + _rigidbody.velocity.magnitude) * 0.3f)));
                     _draggable.canDrag = false;
+                    _audioController.playNetSound();
                 }
                 hasEnteredHoop = false;
             }
@@ -64,6 +72,7 @@ public class BallScript: MonoBehaviour {
             setIceState(0);
             ballScore = 5;
         }
+        _audioController.playDribbleSound();
     }
 
     public void setIceState(int state) {

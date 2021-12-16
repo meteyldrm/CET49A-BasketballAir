@@ -1,4 +1,5 @@
 using System;
+using Resources;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -18,10 +19,19 @@ public class Draggable : MonoBehaviour {
 
     private float touchRadius;
 
-    public float timeMultiplier = 0f;
+    [NonSerialized] public float timeMultiplier = 0f;
+
+    [SerializeField] private PhysicMaterial BallPhysicsMat;
+    [SerializeField] private PhysicMaterial NoPhysicsMat;
+
+    private SphereCollider sCollider;
+
+    private AudioController _audioController;
     
     private void Start() {
         rb = gameObject.GetComponent<Rigidbody>();
+        _audioController = gameObject.GetComponent<AudioController>();
+        sCollider = GetComponent<SphereCollider>();
     }
 
     private void OnDisable() {
@@ -31,6 +41,14 @@ public class Draggable : MonoBehaviour {
     private void OnEnable() {
         if (rb == null) {
             rb = gameObject.GetComponent<Rigidbody>();
+        }
+
+        if (_audioController == null) {
+            _audioController = gameObject.GetComponent<AudioController>();
+        }
+
+        if (sCollider == null) {
+            sCollider = GetComponent<SphereCollider>();
         }
     }
 
@@ -73,12 +91,15 @@ public class Draggable : MonoBehaviour {
                 dragOffset = spaceVector - position;
                 screenVector = position - dragOffset;
                 doDrag(true);
+                _audioController.playGrabSound();
+                sCollider.material = NoPhysicsMat;
                 break;
             }
             case TouchPhase.Ended:
                 dragOffset = spaceVector;
                 screenVector = spaceVector;
                 doDrag(false);
+                sCollider.material = BallPhysicsMat;
                 break;
         }
     }
