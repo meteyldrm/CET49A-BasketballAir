@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class HoopController: MonoBehaviour {
     public int totalScore = 0;
     public int ballNumber;
+    private int bestScore = 0;
 
     [SerializeField]
     private TextMeshProUGUI BasketsTMP;
@@ -18,7 +19,7 @@ public class HoopController: MonoBehaviour {
 
     private void Start() {
         Application.targetFrameRate = 60;
-
+        bestScore = PlayerPrefs.GetInt("best");
         updateBest();
     }
 
@@ -35,10 +36,18 @@ public class HoopController: MonoBehaviour {
 
     public void updateUI() {
         BasketsTMP.text = $"{ballNumber}";
-        ScoreTMP.text = $"Score: {totalScore}";
+        ScoreTMP.text = $"{totalScore}";
+        if (totalScore > bestScore) {
+            bestScore = totalScore;
+            updateBest(bestScore);
+        }
     }
     
-    public void updateBest() {
+    private void updateBest() {
         BestScoreTMP.text = $"Best: {PlayerPrefs.GetInt("best")}";
+    }
+
+    private void updateBest(int number) {
+        BestScoreTMP.text = $"Best: {number}";
     }
 }

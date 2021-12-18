@@ -44,7 +44,9 @@ public class BallScript: MonoBehaviour {
 
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("BallDestroy")) {
-            transform.parent.GetComponent<BallHandlerScript>().AddToPool(this.gameObject);
+            GameObject o;
+            (o = gameObject).SetActive(false);
+            transform.parent.GetComponent<BallHandlerScript>().AddToPool(o);
             return;
         }
 
@@ -54,7 +56,7 @@ public class BallScript: MonoBehaviour {
             }
             if (other.name == "HoopExit") {
                 if (hasEnteredHoop) {
-                    hoopController.onBasket((int)(ballScore * ballMultiplier * _draggable.timeMultiplier * ((1 + _rigidbody.velocity.magnitude) * 0.3f)));
+                    hoopController.onBasket((int)(ballScore * ballMultiplier * ((1 + _rigidbody.velocity.magnitude) * 0.6f)));
                     _draggable.canDrag = false;
                     _audioController.playNetSound();
                 }
@@ -64,6 +66,9 @@ public class BallScript: MonoBehaviour {
     }
 
     private void OnCollisionEnter(Collision collision) {
+        if (!collision.gameObject.CompareTag("BallDribble")) {
+            return;
+        }
         if (iceState > 1) {
             setIceState(iceState-1);
             ballMultiplier += 0.4f;

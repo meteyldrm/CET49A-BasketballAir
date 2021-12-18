@@ -286,11 +286,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7d0247c641e525c458fb2ced63a551f9, type: 3}
   - {fileID: 8300000, guid: 0cda34f479067054d9a441f50a5b98ea, type: 3}
   - {fileID: 8300000, guid: 92f5682ac408e6c40ab5d8be0c941544, type: 3}
-  - {fileID: 8300000, guid: b1f342cad04ad314bb85b38719cbc139, type: 3}
   - {fileID: 8300000, guid: 96eb91f37cc124a44ae193feb75f3b64, type: 3}
   - {fileID: 8300000, guid: b08907e645992ca409b0cf373e2ed402, type: 3}
   - {fileID: 8300000, guid: 4f79167e29730834aa2a4450057329d7, type: 3}
-  - {fileID: 8300000, guid: 633095672d7f76c418a124d951aec684, type: 3}
   grabSounds:
   - {fileID: 8300000, guid: e86b6166d987c9140930ec28af178f2d, type: 3}
   - {fileID: 8300000, guid: 5ba0a35e98b51e04284957d3cf564520, type: 3}

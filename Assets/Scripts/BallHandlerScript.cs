@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Resources;
 using Unity.Mathematics;
 using UnityEngine;
@@ -38,8 +39,13 @@ public class BallHandlerScript : MonoBehaviour {
 
     private bool doSpawn = true;
 
+    public bool paused = false;
+    private bool checkPauseOnce = false;
+    private float timeScale = 0f;
+
     private void Start() {
         cam = Camera.main;
+        timeScale = Time.timeScale;
         _hoopController = HoopControllerObject.GetComponent<HoopController>();
 
         trackerBallNumber = ballNumber;
@@ -59,6 +65,14 @@ public class BallHandlerScript : MonoBehaviour {
     }
 
     private void Update() {
+        if (!checkPauseOnce && paused) {
+            checkPauseOnce = true;
+            doPause(true);
+        } else if (checkPauseOnce && !paused) {
+            checkPauseOnce = false;
+            doPause(false);
+        }
+        
         if (Input.touchCount > 0) {
             var touch = Input.GetTouch(0);
             var spaceVector = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, math.abs(cam.transform.position.z)));
@@ -147,6 +161,15 @@ public class BallHandlerScript : MonoBehaviour {
         _hoopController.updateUI();
     }
 
+    private void doPause(bool state) {
+        if (state) {
+            Physics.autoSimulation = false;
+        } else {
+            Physics.autoSimulation = true;
+            StartCoroutine(increaseTimeScaleCoroutine(1.5f));
+        }
+    }
+
     private void gameOver() {
         GameOverUI.SetActive(true);
         
@@ -157,19 +180,43 @@ public class BallHandlerScript : MonoBehaviour {
             PlayerPrefs.Save();
         }
         updateUI();
-        _hoopController.updateBest();
     }
 
     private IEnumerator ballSpawnerCoroutine(float time) {
+        var ref_time = 0f;
+
         while (doSpawn) {
-            yield return new WaitForSeconds(time);
+            while (ref_time < time) {
+                while (paused) {
+                    yield return null;
+                }
+                ref_time += Time.deltaTime;
+                yield return null;
+            }
+            
+            ref_time = 0f;
             if (trackerBallNumber > 0) {
                 float addTime = spawnBall();
                 float t = spawnFrequency + addTime;
                 time = Random.Range(t / 3, t);
                 trackerBallNumber--;
             }
+
+            yield return null;
         }
-        // ReSharper disable once IteratorNeverReturns
+    }
+
+    private IEnumerator increaseTimeScaleCoroutine(float time) {
+        var ref_time = 0f;
+        var ts = timeScale;
+
+        while (ref_time < time) {
+            ref_time += Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Lerp(0f, ts, ref_time / time);
+            yield return null;
+        }
+
+        Time.timeScale = ts;
+        yield return null;
     }
 }

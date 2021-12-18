@@ -19,8 +19,6 @@ public class Draggable : MonoBehaviour {
 
     private float touchRadius;
 
-    [NonSerialized] public float timeMultiplier = 0f;
-
     [SerializeField] private PhysicMaterial BallPhysicsMat;
     [SerializeField] private PhysicMaterial NoPhysicsMat;
 
@@ -62,13 +60,6 @@ public class Draggable : MonoBehaviour {
     private void Update() {
         if (canDrag && dragging) {
             rb.velocity = (screenVector - currentPos) / (Time.fixedDeltaTime * 5);
-            timeMultiplier = 1;
-        }
-
-        if (!dragging) {
-            if(timeMultiplier < 1.5f){
-                timeMultiplier += 1.2f * Time.deltaTime;
-            }
         }
     }
 
