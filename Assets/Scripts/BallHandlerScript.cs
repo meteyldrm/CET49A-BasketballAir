@@ -182,8 +182,10 @@ public class BallHandlerScript : MonoBehaviour {
     private void doPause(bool state) {
         if (state) {
             Physics.autoSimulation = false;
+            paused = true;
         } else {
             Physics.autoSimulation = true;
+            paused = false;
             StartCoroutine(increaseTimeScaleCoroutine(1.5f));
         }
     }
