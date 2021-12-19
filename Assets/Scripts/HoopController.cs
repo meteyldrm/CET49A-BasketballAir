@@ -18,7 +18,6 @@ public class HoopController: MonoBehaviour {
     private TextMeshProUGUI BestScoreTMP;
 
     private void Start() {
-        Application.targetFrameRate = 60;
         bestScore = PlayerPrefs.GetInt("best");
         updateBest();
     }
