@@ -18,7 +18,7 @@ namespace MainScene {
         private void Update() {
             int count = group.gameObject.transform.childCount;
             Vector2 size = group.cellSize * count + group.spacing * count;
-            group.padding = new RectOffset((int)(-size.x / 2), 0, (int)(-size.y / 2), 0);
+            group.padding = new RectOffset((int)(-size.x / 2), 0, 0, 0);
         }
     }
 }

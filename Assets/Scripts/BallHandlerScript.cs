@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Resources;
 using Unity.Mathematics;
 using UnityEngine;
@@ -25,6 +24,8 @@ public class BallHandlerScript : MonoBehaviour {
 
     [SerializeField] private GameObject GameOverUI;
     
+    [SerializeField] private GameObject TutorialUI;
+    
     private InstancePool pool;
 
     private bool touchDeadlock;
@@ -43,6 +44,8 @@ public class BallHandlerScript : MonoBehaviour {
     private bool checkPauseOnce = false;
     private float timeScale = 0f;
 
+    private bool showTutorialOnce = false;
+
     private void Start() {
         cam = Camera.main;
         timeScale = Time.timeScale;
@@ -51,6 +54,8 @@ public class BallHandlerScript : MonoBehaviour {
         trackerBallNumber = ballNumber;
         _hoopController.ballNumber = ballNumber;
         updateUI();
+
+        showTutorialOnce = PlayerPrefs.GetInt("tutorial") == 0;
 
         pool = gameObject.GetComponent<InstancePool>();
         touchDeadlock = false;
@@ -120,18 +125,31 @@ public class BallHandlerScript : MonoBehaviour {
 
         float addTime = 0;
 
+        bool cold = false;
+
         int state = Random.Range(0, normalAmount + cold1Amount + cold2Amount + cold3Amount);
         if (state < normalAmount) {
             ballScript.setIceState(0);
         } else if (state < normalAmount + cold1Amount) {
             ballScript.setIceState(1);
+            cold = true;
+            
             addTime = 0.3f;
         } else if (state < normalAmount + cold1Amount + cold2Amount) {
             ballScript.setIceState(2);
+            cold = true;
+
             addTime = 0.5f;
         } else if (state < normalAmount + cold1Amount + cold2Amount + cold3Amount) {
             ballScript.setIceState(3);
+            cold = true;
+
             addTime = 0.8f;
+        }
+
+        if (cold && showTutorialOnce) {
+            StartCoroutine(showTutorial());
+            showTutorialOnce = false;
         }
 
         ball.transform.position = positionVector;
@@ -180,6 +198,19 @@ public class BallHandlerScript : MonoBehaviour {
             PlayerPrefs.Save();
         }
         updateUI();
+    }
+
+    private IEnumerator showTutorial() {
+        yield return new WaitForSeconds(0.5f);
+        TutorialUI.SetActive(true);
+        doPause(true);
+    }
+    
+    public void dismissTutorial() {
+        TutorialUI.SetActive(false);
+        doPause(false);
+        PlayerPrefs.SetInt("tutorial", 1);
+        PlayerPrefs.Save();
     }
 
     private IEnumerator ballSpawnerCoroutine(float time) {
