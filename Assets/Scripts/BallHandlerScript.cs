@@ -78,7 +78,7 @@ public class BallHandlerScript : MonoBehaviour {
             doPause(false);
         }
         
-        if (Input.touchCount > 0) {
+        if (Input.touchCount > 0 && !paused) {
             var touch = Input.GetTouch(0);
             var spaceVector = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, math.abs(cam.transform.position.z)));
 
