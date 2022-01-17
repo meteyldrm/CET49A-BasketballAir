@@ -22,5 +22,9 @@ namespace MainScene {
         public void onStartClicked() {
             SceneManager.LoadScene("GameScene");
         }
+
+        public void onPrivacyClicked() {
+            Application.OpenURL("https://sites.google.com/view/basketball-air-privacy-policy/");
+        }
     }
 }
